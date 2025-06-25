@@ -81,5 +81,32 @@ app_manager = App_Manager(
 # Initalize the flask blueprint
 app: Flask = app_manager.add_flask_blueprint()
 
+from maeser.graphs.simple_rag import get_simple_rag
+from langgraph.graph.graph import CompiledGraph
+
+# Create a system prompt for your chatbot with appended context. Example prompt:
+my_prompt: str = """
+    You are a helpful teacher helping a student with course material.
+    You will answer a question based on the context provided.
+    Don't answer questions about other things.
+
+    {context}
+"""
+
+# Create a RAG graph pointing to your vector store
+my_simple_rag: CompiledGraph = get_simple_rag(
+    vectorstore_path=f"{VEC_STORE_PATH}/my_vectorstore",
+    vectorstore_index="index", # the name of the .faiss and .pkl files in your vectorstore
+    memory_filepath=f"{LOG_SOURCE_PATH}/my_branch.db",
+    system_prompt_text=my_prompt,
+    model=LLM_MODEL_NAME
+)
+# Register it as a new branch
+sessions_manager.register_branch(
+    branch_name="my_branch",
+    branch_label="My Custom Knowledge",
+    graph=my_simple_rag,    
+)
+
 if __name__ == "__main__":
     app.run(port=3002)

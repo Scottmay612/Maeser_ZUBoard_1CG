@@ -18,23 +18,56 @@ Maeser. If not, see <https://www.gnu.org/licenses/>.
 import yaml
 import os
 
+# def load_config():
+#     """Load configuration from YAML file."""
+#     config_paths = [
+#         'config.yaml',
+#         './config.yaml',
+#         'example/config.yaml'
+#     ]
+    
+#     for path in config_paths:
+#         if os.path.exists(path):
+#             with open(path, 'r') as file:
+#                 print(f'Using configuration at {path} (Priority {config_paths.index(path)})')
+#                 return yaml.safe_load(file)
+    
+#     print("Warning: No configuration file found")
+#     return {}
+
 def load_config():
-    """Load configuration from YAML file."""
+    """
+    Loads configuration from YAML file and substitutes environment variables.
+    """
     config_paths = [
-        'config_example.yaml',
-        './config_example.yaml',
-        'example/config_example.yaml'
+        'config.yaml',
+        './config.yaml',
+        'example/config.yaml' # Your traceback indicates this is likely the one being used
     ]
     
     for path in config_paths:
         if os.path.exists(path):
             with open(path, 'r') as file:
+                raw_config_content = file.read() # <--- READ AS STRING HERE
                 print(f'Using configuration at {path} (Priority {config_paths.index(path)})')
-                return yaml.safe_load(file)
+
+                # --- PERFORM SUBSTITUTION HERE ---
+                processed_config_content = raw_config_content
+                for key, value in os.environ.items():
+                    placeholder = f"${{{key}}}"
+                    if placeholder in processed_config_content:
+                        processed_config_content = processed_config_content.replace(placeholder, value)
+                        # Optional debug print:
+                        # print(f"  Substituted {placeholder} for {key}")
+
+                return yaml.safe_load(processed_config_content) # <--- LOAD THE PROCESSED STRING
     
     print("Warning: No configuration file found")
     return {}
 
+from dotenv import load_dotenv
+
+load_dotenv()  # take environment variables from .env.
 config = load_config()
 
 # API Keys

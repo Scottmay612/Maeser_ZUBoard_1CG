@@ -48,6 +48,12 @@ pipeline_prompt: str = """You are speaking from the perspective of Karl G. Maese
 
     {context}
 """
+
+zuboard_prompt: str = """You are an assistant for the ZUBoard project. You will answer questions about the ZUBoard based on the product documentation provided. You will not answer questions about other things.You will also keep your responses less than 150 words.
+
+    {context}
+"""
+
 from maeser.graphs.simple_rag import get_simple_rag
 from maeser.graphs.pipeline_rag import get_pipeline_rag
 from langgraph.graph.graph import CompiledGraph
@@ -57,6 +63,9 @@ sessions_manager.register_branch(branch_name="maeser", branch_label="Karl G. Mae
 
 byu_simple_rag: CompiledGraph = get_simple_rag(vectorstore_path=f"{VEC_STORE_PATH}/byu", vectorstore_index="index", memory_filepath=f"{LOG_SOURCE_PATH}/byu.db", system_prompt_text=byu_prompt, model=LLM_MODEL_NAME)
 sessions_manager.register_branch(branch_name="byu", branch_label="BYU History", graph=byu_simple_rag)
+
+zuboard_simple_rag: CompiledGraph = get_simple_rag(vectorstore_path=f"{VEC_STORE_PATH}/my_vectorstore", vectorstore_index="index", memory_filepath=f"{LOG_SOURCE_PATH}/my_branch.db", system_prompt_text=zuboard_prompt, model=LLM_MODEL_NAME)
+sessions_manager.register_branch(branch_name="ZUBoard", branch_label="ZUBoard 1CG", graph=zuboard_simple_rag)
 
 import pyinputplus as pyip
 
